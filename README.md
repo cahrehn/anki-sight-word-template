@@ -1,0 +1,1 @@
+# anki-sight-word-template
