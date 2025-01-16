@@ -1,0 +1,66 @@
+<p id="wordDisplay" class="word-display">{{Front}}</p>
+
+ <script>
+    // Use window object to store configuration and avoid redeclaration
+    if (typeof window.sightWordConfig === 'undefined') {
+        window.sightWordConfig = {
+            minDisplayTime: 400,
+            timePerChar: 30
+        };
+    }
+    
+    if (typeof window.currentTimer === 'undefined') {
+        window.currentTimer = null;
+    }
+
+    function clearCurrentTimer() {
+        if (window.currentTimer) {
+            clearTimeout(window.currentTimer);
+            window.currentTimer = null;
+        }
+    }
+
+    function showText() {
+        // Clear any existing timer
+        clearCurrentTimer();
+        
+        const displayArea = document.getElementById('wordDisplay');
+        
+        // Get the current text content
+        const currentText = displayArea.textContent.trim();
+        
+        // Reset the display
+        displayArea.textContent = '';
+        
+        // Calculate display time based on text length
+        const displayTime = Math.max(
+            window.sightWordConfig.minDisplayTime, 
+            currentText.length * window.sightWordConfig.timePerChar
+        );
+        
+        // Display the text after a brief delay to ensure clearing happened
+        setTimeout(() => {
+            displayArea.textContent = currentText;
+            
+            // Set new timer to clear the text
+            window.currentTimer = setTimeout(() => {
+                displayArea.textContent = '';
+                window.currentTimer = null;
+            }, displayTime);
+        }, 50);
+    }
+
+    // Clean up when navigating away
+    document.addEventListener('unload', clearCurrentTimer);
+
+    // Reset and show text when the card is shown
+    if (typeof Anki !== 'undefined') {
+        document.addEventListener('show', () => {
+            clearCurrentTimer();
+            showText();
+        });
+    } else {
+        // For testing outside Anki
+        showText();
+    }
+</script>
